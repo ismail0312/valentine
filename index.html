@@ -7,14 +7,26 @@
 body {
     margin: 0;
     padding: 0;
-    height: 100vh;
-    background: url("https://i.postimg.cc/YCLKWQYd/IMG-20250616-WA0175.jpg") no-repeat center center/cover;
+    min-height: 100svh; /* better than 100vh on mobile */
+    width: 100vw;
+
+    /* Background (fixed cropping/anchoring) */
+    background-image: url("https://i.postimg.cc/YCLKWQYd/IMG-20250616-WA0175.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center 35%; /* <-- adjust (lower shows more top, higher shows more bottom) */
+
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: Arial, sans-serif;
     overflow: hidden;
     position: relative;
+}
+
+/* tune background position for phones */
+@media (max-width: 600px) {
+  body { background-position: center 25%; }
 }
 
 /* soft vignette so text pops more */
@@ -116,7 +128,7 @@ button:hover {
     to { text-shadow: 0 0 25px #ff99aa; }
 }
 
-/* Optional: a little love letter box */
+/* Love letter box */
 #loveLetter{
     display:none;
     margin-top: 18px;
@@ -196,6 +208,10 @@ button:hover {
         I LOVE YOU TO HEAVEN AND BACK &lt;3
     </div>
 
+    <div id="loveLetter">
+        Eliza, if you’re reading this… just know you’re my favorite person.
+        Thank you for being you. I’m really grateful I get to love you.
+        💗
     </div>
 </div>
 
@@ -280,3 +296,4 @@ function handleClick() {
 
 </body>
 </html>
+
