@@ -10,11 +10,11 @@ body {
     min-height: 100svh; /* better than 100vh on mobile */
     width: 100vw;
 
-    /* Background (fixed cropping/anchoring) */
+    /* Background */
     background-image: url("https://i.postimg.cc/YCLKWQYd/IMG-20250616-WA0175.jpg");
     background-repeat: no-repeat;
     background-size: cover;
-    background-position: center 25%; /* <-- adjust (lower shows more top, higher shows more bottom) */
+    background-position: center 22%; /* tweak if needed */
 
     display: flex;
     justify-content: center;
@@ -26,10 +26,10 @@ body {
 
 /* tune background position for phones */
 @media (max-width: 600px) {
-  body { background-position: center 25%; }
+  body { background-position: center 18%; }
 }
 
-/* soft vignette so text pops more */
+/* soft vignette */
 body::before{
     content:"";
     position:absolute;
@@ -62,14 +62,14 @@ body::before{
     border-radius: 25px;
     text-align: center;
     color: white;
-    transform: translateY(-70px);
+    transform: translateY(-60px);
     box-shadow: 0 20px 50px rgba(0,0,0,0.45);
-    max-width: 540px;
+    max-width: 560px;
     z-index: 3;
     backdrop-filter: blur(4px);
 }
 
-/* Tiny romantic subtitle */
+/* Subtitle */
 .subtitle{
     margin-top: -6px;
     margin-bottom: 18px;
@@ -86,22 +86,39 @@ h1 {
 }
 
 /* Buttons */
+.btnRow{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
 button {
     padding: 12px 26px;
-    margin: 10px;
     border: none;
     border-radius: 30px;
     font-size: 14px;
     cursor: pointer;
     background: #ff4d6d;
     color: white;
-    transition: 0.3s;
+    transition: 0.25s;
     max-width: 340px;
 }
 
 button:hover {
     background: #ff1e4d;
     transform: scale(1.05);
+}
+
+/* Make "No" look softer */
+#noBtn{
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
+}
+#noBtn:hover{
+    background: rgba(255,255,255,0.18);
 }
 
 /* Spotify player */
@@ -111,7 +128,7 @@ button:hover {
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 12px 28px rgba(0,0,0,0.35);
-    display: none; /* revealed after first click */
+    display: none; /* revealed after first Yes */
 }
 
 /* Final message */
@@ -137,7 +154,7 @@ button:hover {
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.15);
     line-height: 1.45;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 /* Mocha Bears (GIFs) */
@@ -170,7 +187,7 @@ button:hover {
     .overlay {
         padding: 30px;
         margin: 0 14px;
-        transform: translateY(-50px);
+        transform: translateY(-40px);
     }
     h1 { font-size: 22px; }
 }
@@ -189,10 +206,12 @@ button:hover {
     <h1 id="title"></h1>
     <div class="subtitle" id="subtitle">I made this just for you 💌</div>
 
-    <button id="btn1" onclick="handleClick()">Yes</button>
-    <button id="btn2" onclick="handleClick()">Yes</button>
+    <div class="btnRow">
+        <button id="yesBtn" onclick="handleYes()">Yes</button>
+        <button id="noBtn" type="button">No</button>
+    </div>
 
-    <!-- Spotify (reveals after first click) -->
+    <!-- Spotify (reveals after first Yes) -->
     <div class="spotify" id="spotifyBox" aria-label="Spotify player">
         <iframe
             style="border:0"
@@ -208,7 +227,8 @@ button:hover {
         I LOVE YOU TO HEAVEN AND BACK &lt;3
     </div>
 
-   
+    <div id="loveLetter">
+        You are my favourite person in the entire world &lt;3
     </div>
 </div>
 
@@ -263,25 +283,51 @@ function spawnHeart(){
 }
 setInterval(spawnHeart, 650);
 
-function handleClick() {
-    // First click: reveal music
+// Playful "No" button that runs away
+const noBtn = document.getElementById("noBtn");
+const overlay = document.querySelector(".overlay");
+
+function moveNoButton() {
+    const overlayRect = overlay.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+
+    // Keep the button inside the overlay area
+    const padding = 12;
+    const maxX = overlayRect.width - btnRect.width - padding;
+    const maxY = overlayRect.height - btnRect.height - padding;
+
+    const x = Math.max(padding, Math.random() * maxX);
+    const y = Math.max(padding, Math.random() * maxY);
+
+    // Position relative to overlay
+    noBtn.style.position = "absolute";
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+}
+
+noBtn.addEventListener("mouseenter", moveNoButton);
+noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNoButton(); }, { passive: false });
+
+// Main flow (Yes button)
+function handleYes() {
+    // First Yes: reveal options + music
     if (stage === 0) {
-        document.getElementById("btn1").innerHTML = "17 things I love about you";
-        document.getElementById("btn2").innerHTML = "For every month I loved you";
+        document.getElementById("yesBtn").innerHTML = "17 things I love about you";
+        document.getElementById("subtitle").innerHTML = "okayy now tap again 💞";
         document.getElementById("spotifyBox").style.display = "block";
         stage = 1;
         return;
     }
 
-    // Second stage: cycle reasons
+    // Show reasons on each next click
     if (stage === 1) {
         if (index < reasons.length) {
-            document.getElementById("btn1").innerHTML = reasons[index];
-            document.getElementById("btn2").innerHTML = reasons[index];
+            document.getElementById("yesBtn").innerHTML = reasons[index];
             index++;
         } else {
-            document.getElementById("btn1").style.display = "none";
-            document.getElementById("btn2").style.display = "none";
+            // End screen
+            document.getElementById("yesBtn").style.display = "none";
+            document.getElementById("noBtn").style.display = "none";
             document.getElementById("title").style.display = "none";
             document.getElementById("subtitle").style.display = "none";
             document.getElementById("finalMessage").style.display = "block";
